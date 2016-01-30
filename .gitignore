@@ -1,0 +1,9 @@
+# phpStorm project file
+.idea*
+
+# Composer related files and folders
+Vendor/*
+composer.lock
+
+# Logs
+Logs/*
