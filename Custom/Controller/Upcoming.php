@@ -15,7 +15,9 @@ use Utils\Logger;
 
 class Upcoming
 {
+    /** @var \SQLite3 $db */
     protected $db;
+    /** @var \Connection\AsyncCurl $asyncConn */
     protected $asyncConn;
 
     public function __construct(Container $container)
@@ -31,6 +33,9 @@ class Upcoming
     {
         /** @var Model[] $companyData */
         $companyData = $this->scrapeData();
+        $persister = new \Persister\Company($this->db);
+        echo print_r($companyData, false);
+        $persister->replaceAll($companyData);
 
     }
 
@@ -134,7 +139,7 @@ class Upcoming
             // skip that record from the record set and keep trucking.
             if ($html) {
                 $companyData = $this->scrapeCompanyData($html);
-                $dataArr[$index] = array_merge($companyData, $dataArr[$index]);
+                $dataArr[$index] = new Model(array_merge($companyData, $dataArr[$index]));
             } else {
                 // something didnt come back in the async curl, fetch what we can out of the response and log it
                 $message = 'Error retrieving company data. Will drop the current entry and continue processing. Check error log for details.';
@@ -160,9 +165,11 @@ class Upcoming
      */
     private function stripAndTrim($str)
     {
-        // TODO - fix this up and make less hacky
-        // ditch any 2 or more consecutive spaces and replace with single space. trim any leading or trailing whitespace.
-        return preg_replace('/\s\s+/', ' ', trim($str));
+        // TODO - fix this up and make less hacky - possibly implement htmlPurifier or something like that?
+        // ditch any 2 or more consecutive spaces and replace with single space.
+        // trim any leading or trailing whitespace.
+        // strip any html tags that may be in there.
+        return preg_replace('/\s\s+/', ' ', trim(strip_tags($str)));
     }
 
 
