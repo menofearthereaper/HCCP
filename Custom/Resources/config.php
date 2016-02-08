@@ -48,3 +48,12 @@ define('ASX_BASE_URL', 'http://www.asx.com.au');
 define('LOG', 'Logs/log.log');
 define('ERROR', 'Logs/error.log');
 
+
+/**
+ * Asana creds
+ */
+define('ASANA_WORKSPACE', '18930037370237');
+define('ASANA_ASIGNEE', '81762596593527');
+define('ASANA_TOKEN', '0/359ebb4e817ae1512f8bb194ea51e450 ');
+define('ASANA_PROJECT_ID', '81762813064377');
+

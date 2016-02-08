@@ -44,6 +44,17 @@ class Upcoming
             // if the record does not exist in the old data add it
             if (!array_key_exists($model->proposedCode, $existingData)) {
                 $persister->save($model);
+                // OK we have a new record. throw  a task at Asana
+                if (!isset($asana)) {
+                    $asana = new \Asana(array('accessToken' => ASANA_TOKEN));
+                }
+                $asana->createTask(array(
+                    'workspace' => ASANA_WORKSPACE,
+                    'assignee' => ASANA_ASIGNEE,
+                    'projects' => array(ASANA_PROJECT_ID),
+                    'name' => $model->company . " ($model->proposedCode)",
+                    'notes' => $model->contact
+                ));
             } else {
                 $oldModel = $existingData[$model->proposedCode];
                 if ($model->hash() === $oldModel->hash()) {
