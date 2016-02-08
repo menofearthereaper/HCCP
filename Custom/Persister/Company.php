@@ -8,6 +8,8 @@
 
 namespace Persister;
 
+use Utils\Logger;
+
 /**
  * Class Company - contains all functions for persistent storage of Company data
  * @package Persister
@@ -42,10 +44,44 @@ class Company
 
     }
 
-    public function deleteAll()
+    /**
+     * Function deletes a record from the companyDetails table with a given id
+     * @param $id
+     */
+    public function delete($id)
     {
+        $this->db->exec('BEGIN');
+        $sql = 'DELETE FROM companyDetails WHERE id = :id';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':id', $id);
+        $this->db->exec('COMMIT;');
+    }
+
+    /**
+     * Function fetches all rows out of the DB and returns an array of Model/Company objects
+     * @return \Model\Company[]
+     */
+    public function getAll()
+    {
+        $retArr = array();
+        $sql = 'SELECT * FROM companyDetails';
+        $rs = $this->db->query($sql);
+        while ($row = $rs->fetchArray()) {
+            $model = new \Model\Company($row);
+            $retArr[$row['proposedCode']] = $model;
+        }
+        return $retArr;
+    }
+
+    /**
+     * Function deletes all records in the companyDetails table
+     */
+    private function deleteAll()
+    {
+        $this->db->exec('BEGIN');
         $sql = 'DELETE FROM companyDetails';
         $this->db->exec($sql);
+        $this->db->exec('COMMIT');
     }
 
     /**
@@ -53,9 +89,9 @@ class Company
      */
     public function save($model)
     {
-
+        $this->db->exec('BEGIN');
         $sql = "
-INSERT INTO companyDetails (company, proposedCode, listingDate, contact, activities, industryGroup, issuePrice, issueType, securityCode, capitalToRaise, expextedCloseDate, underwriter)
+INSERT INTO companyDetails (company, proposedCode, listingDate, contact, activities, industryGroup, issuePrice, issueType, securityCode, capitalToRaise, expectedCloseDate, underwriter)
 VALUES (:company, :proposedCode,:listingDate, :contact, :activities, :industryGroup,  :issuePrice, :issueType,:securityCode, :capitalToRaise, :expectedCloseDate, :underwriter)";
         $stmt = $this->db->prepare($sql);
         $stmt->bindValue(':company', $model->company);
@@ -71,5 +107,6 @@ VALUES (:company, :proposedCode,:listingDate, :contact, :activities, :industryGr
         $stmt->bindValue(':expectedCloseDate', $model->expectedCloseDate);
         $stmt->bindValue(':underwriter', $model->underwriter);
         $stmt->execute();
+        $this->db->exec('COMMIT;');
     }
 }

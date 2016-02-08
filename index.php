@@ -5,7 +5,19 @@
  * Date: 24/01/2016
  * Time: 11:03 AM
  */
-include 'Custom\Resources\config.php';
+
+// use windows or unix filepaths in custom autoloader
+define('WINDOWS_FILEPATHS', true);
+if (WINDOWS_FILEPATHS) {
+    require_once 'Custom\Resources\config.php';
+    // add in the composer autoloader.
+    require_once 'Vendor\autoload.php';
+} else {
+    require_once 'Custom/Resources/config.php';
+    // add in the composer autoloader.
+    require_once 'Vendor/autoload.php';
+}
+
 use Utils\Container as Container;
 use Controller\Upcoming as Upcoming;
 
@@ -28,8 +40,7 @@ spl_autoload_register(function ($class) {
         }
     }
 });
-// add in the composer autoloader.
-require_once 'Vendor/autoload.php';
+
 try {
     $controller = new Upcoming(new Container());
     $controller->update();

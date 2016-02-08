@@ -27,16 +27,39 @@ class Upcoming
     }
 
     /**
-     * Function retrieves upcoming IPOs
+     * Function retrieves upcoming IPOs by scraping data from asx pages
+     * It then compares existing records against the new records and updates the DB accordingly
      */
     public function update()
     {
         /** @var Model[] $companyData */
-        $companyData = $this->scrapeData();
+        $modelArray = $this->scrapeData();
         $persister = new \Persister\Company($this->db);
-        echo print_r($companyData, false);
-        $persister->replaceAll($companyData);
-
+        // fetch all existing records out of the db - Normally I would keep this in memcache or similar
+        // but memcached does not want to work on this windows environ and im not going to burn any more time
+        // trying to make it comply
+        $existingData = $persister->getAll();
+        // for each of the models
+        foreach ($modelArray as $model) {
+            // if the record does not exist in the old data add it
+            if (!array_key_exists($model->proposedCode, $existingData)) {
+                $persister->save($model);
+            } else {
+                $oldModel = $existingData[$model->proposedCode];
+                if ($model->hash() === $oldModel->hash()) {
+                    // no change required just unset from existing records
+                    unset($existingData[$model->proposedCode]);
+                } else {
+                    // model needs updating cos data has changed
+                    $persister->save($model);
+                    unset($existingData[$model->proposedCode]);
+                }
+            }
+        }
+        // anything left in existing records? nuke them because they are no longer valid
+        foreach ($existingData as $oldData) {
+            $persister->delete($oldData->id);
+        }
     }
 
     /**

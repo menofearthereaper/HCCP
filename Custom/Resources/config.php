@@ -39,9 +39,6 @@ switch (ENVIRONMENT) {
 }
 
 
-// use windows or unix filepaths in custom autoloader
-define('WINDOWS_FILEPATHS', true);
-
 // define the base url for the asx website
 define('ASX_BASE_URL', 'http://www.asx.com.au');
 

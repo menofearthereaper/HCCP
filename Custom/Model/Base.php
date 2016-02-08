@@ -71,12 +71,17 @@ class Base
      * Function to convert object to array - useful while in dev, unlikely to be required long term
      * @return array
      */
-    public function toJson()
+    public function toArray()
     {
         $json = [];
         foreach ($this as $key => $val) {
             $json[$key] = $val;
         }
         return $json;
+    }
+
+    public function hash()
+    {
+        return md5(json_encode($this->toArray()));
     }
 }
