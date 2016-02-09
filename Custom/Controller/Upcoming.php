@@ -66,11 +66,13 @@ class Upcoming
                     unset($existingData[$model->proposedCode]);
                 }
             }
+            $retArray[] = $model->toArray();
         }
         // anything left in existing records? nuke them because they are no longer valid
         foreach ($existingData as $oldData) {
             $persister->delete($oldData->id);
         }
+        echo json_encode($retArray);
     }
 
     /**
