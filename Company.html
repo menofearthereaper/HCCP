@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body onload="loadData()">
+
+<table>
+    <thead>
+    <th>Company</th>
+    <th>Code</th>
+    <th>Contact</th>
+    <th>Listing Date</th>
+    <th>Expected Close</th>
+    <th>Industry Group</th>
+    <th style="max-width: 10%">Activities</th>
+    <th>Issue Price</th>
+    <th>Issue Type</th>
+    <th>Underwriter</th>
+    <th>Comments</th>
+    </thead>
+    <tbody id="wish_i_had_bootstrap">
+
+    </tbody>
+</table>
+</body>
+</html>
+
+<script>
+
+    function loadData() {
+        var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                var companies = JSON.parse(xhttp.responseText);
+                var tableBody = document.getElementById('wish_i_had_bootstrap'),
+                        _tr = document.createElement('tr'),
+                        _td = document.createElement('td'),
+                        columns = ['company', 'proposedCode', 'contact', 'listingDate', 'expectedCloseDate', 'industryGroup',
+                            'activities', 'issuePrice', 'issueType', 'underwriter'];
+                console.log(companies[1]);
+                for (var i = 0; i < companies.length; i++) {
+                    var tr = _tr.cloneNode(false);
+                    for (var j = 0; j < columns.length; j++) {
+                        var td = _td.cloneNode(false);
+                        td.appendChild(document.createTextNode(companies[i][columns[j]] || ''));
+                        tr.appendChild(td);
+                    }
+                    tableBody.appendChild(tr);
+                }
+            }
+        };
+
+        xhttp.open("GET", "index.php", true);
+        xhttp.send();
+    }
+</script>
