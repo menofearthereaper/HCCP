@@ -13,7 +13,7 @@ use Model\Company as Model;
 use DOMDocument;
 use Utils\Logger;
 
-class Upcoming
+class Company
 {
     /** @var \SQLite3 $db */
     protected $db;
@@ -26,11 +26,49 @@ class Upcoming
         $this->asyncConn = $container->getAsyncCurl(ASX_BASE_URL);
     }
 
+    public function go()
+    {
+        // Yeah yeah yeah I know this is a dirty filthy hack.....  I feel like i need a shower having put it in,
+        // but given there is only 1 post method and 1 get method im not going to burn more time building a router.
+        if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+            $this->editComment();
+        } else {
+            $this->update();
+        }
+    }
+
+    /**
+     * Uggh not entirely sure yet why, but PHP was ditching my POST data. Tried multiple data formats coming out of JS
+     * tried messing with post data sizes, in the end the only way I could get hold of the post data was to raid php//input
+     * god i hate windows - when wierd stuff happens you never quite know if you have overlooked something simple
+     * or its just Windows messing with your head.
+     * @return array
+     */
+    private function recoverPostData()
+    {
+        $pairs = explode("&", file_get_contents("php://input"));
+        $vars = array();
+        foreach ($pairs as $pair) {
+            $val = explode("=", $pair);
+            $name = urldecode($val[0]);
+            $value = urldecode($val[1]);
+            $vars[$name] = $value;
+        }
+        return $vars;
+    }
+
+    private function editComment()
+    {
+        $_POST = $this->recoverPostData();
+        echo $_POST['code'];
+        echo $_POST['comment'];
+    }
+
     /**
      * Function retrieves upcoming IPOs by scraping data from asx pages
      * It then compares existing records against the new records and updates the DB accordingly
      */
-    public function update()
+    private function update()
     {
         /** @var Model[] $companyData */
         $modelArray = $this->scrapeData();

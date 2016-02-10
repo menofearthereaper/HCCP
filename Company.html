@@ -1,5 +1,27 @@
+<!--
+The UI im not going to burn time trying to make pretty, pretty isnt my strong suit and frankly at this point in time I
+just want to see the back of this task.
+
+Normally I would use bootstrap for ui elements and to handle all that responsive layout bs that all the rage these days
+(I do like the grid system layout, and some of the UI elements such as dialog boxes or tool tips would be bery useful
+for de-cluttering the table layout but the task explicitly states no css library which rules out bootstrappy goodness
+
+Also for this particular task Knockout JS would be an obvious candidate so u could databind all the inbound text, but
+seeing as nearly all the text doesnt do anything, and theres not really a lot of element lookups involved, and the ajax
+is about as simple as you can get I am just going to roll with out of the box JS, no external libs.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
+<style>
+    td {
+        padding: 5px;
+    }
+
+    td div {
+        display: inline-flex;
+    }
+</style>
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -38,21 +60,59 @@
                         _tr = document.createElement('tr'),
                         _td = document.createElement('td'),
                         columns = ['company', 'proposedCode', 'contact', 'listingDate', 'expectedCloseDate', 'industryGroup',
-                            'activities', 'issuePrice', 'issueType', 'underwriter'];
+                            'activities', 'issuePrice', 'issueType', 'underwriter', 'comments'];
                 console.log(companies[1]);
                 for (var i = 0; i < companies.length; i++) {
                     var tr = _tr.cloneNode(false);
                     for (var j = 0; j < columns.length; j++) {
                         var td = _td.cloneNode(false);
-                        td.appendChild(document.createTextNode(companies[i][columns[j]] || ''));
+                        // if column is 'underwriter'
+                        if (j == 10) {
+                            // we add a text input and a save btn and shove them into a div
+                            var div = document.createElement('div');
+                            var input = document.createElement('textarea');
+                            input.type = 'text';
+                            input.id = 'txtArea_' + companies[i][columns[1]];
+                            var button = document.createElement('button');
+                            button.type = 'button';
+                            button.innerHTML = 'save';
+                            var code = companies[i][columns[1]];
+                            button.setAttribute('onclick', 'addComment(\'' + code + '\')');
+                            // glue the button and textarea into div
+                            div.appendChild(input);
+                            div.appendChild(button);
+                            // glue div into td field
+                            td.appendChild(div);
+                        } else {
+                            td.appendChild(document.createTextNode(companies[i][columns[j]] || ''));
+                        }
+                        // glue td into row
                         tr.appendChild(td);
                     }
+                    // glue row into table body
                     tableBody.appendChild(tr);
                 }
             }
         };
-
         xhttp.open("GET", "index.php", true);
         xhttp.send();
+    }
+
+    function addComment(code) {
+        var element = document.getElementById('txtArea_' + code);
+        // var data = {'comment': element.value, 'code': code};
+        var data = [];
+        data.push(encodeURIComponent('comment') + '=' + encodeURIComponent(element.value));
+        data.push(encodeURIComponent('code') + '=' + encodeURIComponent(code));
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "index.php", true);
+        xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+        xhttp.onreadystatechange = function () {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                var returnVal = JSON.parse(xhttp.responseText);
+                console.log(returnVal);
+            }
+        };
+        xhttp.send(data.join('&'));
     }
 </script>

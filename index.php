@@ -19,7 +19,7 @@ if (WINDOWS_FILEPATHS) {
 }
 
 use Utils\Container as Container;
-use Controller\Upcoming as Upcoming;
+use Controller\Company as Company;
 
 // create autoloader - Because I couldnt get virtual machines talking to my home network i had to use xampp on windows YUCK!
 // Changing the WINDOWS_FILEPATHS var should get the autoloader working un unix environments but I havent had a chance to test it
@@ -42,8 +42,9 @@ spl_autoload_register(function ($class) {
 });
 
 try {
-    $controller = new Upcoming(new Container());
-    $controller->update();
+    $controller = new Company(new Container());
+    $controller->go();
+
 } catch (Exception $e) {
     \Utils\Logger::getInstance()->write(ERROR, $e->getMessage(), $e->getTrace());
 }
