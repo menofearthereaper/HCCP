@@ -73,11 +73,11 @@ class Base
      */
     public function toArray()
     {
-        $json = [];
+        $arr = [];
         foreach ($this as $key => $val) {
-            $json[$key] = $val;
+            $arr[$key] = $val;
         }
-        return $json;
+        return $arr;
     }
 
     public function hash()

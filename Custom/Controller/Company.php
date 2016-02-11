@@ -8,6 +8,7 @@
 
 namespace Controller;
 
+use GuzzleHttp\Psr7\Response;
 use Utils\Container as Container;
 use Model\Company as Model;
 use DOMDocument;
@@ -60,8 +61,15 @@ class Company
     private function editComment()
     {
         $_POST = $this->recoverPostData();
-        echo $_POST['code'];
-        echo $_POST['comment'];
+        $code = isset($_POST['code']) ? filter_var($_POST['code'], FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_ENCODE_HIGH) : false;
+        $comment = isset($_POST['comment']) ? filter_var($_POST['comment'], FILTER_SANITIZE_SPECIAL_CHARS, FILTER_FLAG_ENCODE_HIGH) : false;
+        if ($code && $comment) {
+            $persister = new \Persister\Company($this->db);
+            $persister->addComment($code, $comment);
+            return new \GuzzleHttp\Psr7\Response();
+        } else {
+            throw new \Exception('Invalid comment');
+        }
     }
 
     /**
@@ -95,12 +103,14 @@ class Company
                 ));
             } else {
                 $oldModel = $existingData[$model->proposedCode];
+                // shove comment from old model into scraped data - yeah this is a hack, but im past looking for elegant solutions
+                $model->comment = $oldModel->comment;
                 if ($model->hash() === $oldModel->hash()) {
                     // no change required just unset from existing records
                     unset($existingData[$model->proposedCode]);
                 } else {
                     // model needs updating cos data has changed
-                    $persister->save($model);
+                    $persister->update($model);
                     unset($existingData[$model->proposedCode]);
                 }
             }
@@ -108,7 +118,7 @@ class Company
         }
         // anything left in existing records? nuke them because they are no longer valid
         foreach ($existingData as $oldData) {
-            $persister->delete($oldData->id);
+            $persister->delete($oldData->proposedCode);
         }
         echo json_encode($retArray);
     }

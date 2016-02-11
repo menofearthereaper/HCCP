@@ -46,6 +46,15 @@ class Company extends Base
     protected $expectedCloseDate;
     /** @var  $underwriter string */
     protected $underwriter;
+    /** @var $comment string */
+    protected $comment;
 
-
+    public function __construct(array $params)
+    {
+        // Comment is not pulled from html scrape so set it if it doesnt exist
+        if (!isset($params['comment'])) {
+            $params['comment'] = '';
+        }
+        parent::__construct($params);
+    }
 }

@@ -48,12 +48,12 @@ class Company
      * Function deletes a record from the companyDetails table with a given id
      * @param $id
      */
-    public function delete($id)
+    public function delete($code)
     {
         $this->db->exec('BEGIN');
-        $sql = 'DELETE FROM companyDetails WHERE id = :id';
+        $sql = 'DELETE FROM companyDetails WHERE proposedCode = :code';
         $stmt = $this->db->prepare($sql);
-        $stmt->bindValue(':id', $id);
+        $stmt->bindValue(':code', $code);
         $this->db->exec('COMMIT;');
     }
 
@@ -107,6 +107,45 @@ VALUES (:company, :proposedCode,:listingDate, :contact, :activities, :industryGr
         $stmt->bindValue(':expectedCloseDate', $model->expectedCloseDate);
         $stmt->bindValue(':underwriter', $model->underwriter);
         $stmt->execute();
-        $this->db->exec('COMMIT;');
+        $this->db->exec('COMMIT');
+    }
+
+    public function update($model)
+    {
+
+        $this->db->exec('BEGIN');
+        $sql = "
+UPDATE companyDetails
+SET company = :company, listingDate = :listingDate, contact = :contact, activities = :activities, capitalToRaise = :capitalToRaise,
+industryGroup = :industryGroup, issuePrice = :issuePrice, issueType = :issueType, securityCode = :securityCode,
+expectedCloseDate = :expectedCloseDate, underwriter = :underwriter
+WHERE proposedCode = :proposedCode";
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':company', $model->company);
+        $stmt->bindValue(':proposedCode', $model->proposedCode);
+        $stmt->bindValue(':listingDate', $model->listingDate);
+        $stmt->bindValue(':contact', $model->contact);
+        $stmt->bindValue(':activities', $model->activities);
+        $stmt->bindValue(':industryGroup', $model->industryGroup);
+        $stmt->bindValue(':securityCode', $model->securityCode);
+        $stmt->bindValue(':issuePrice', $model->issuePrice);
+        $stmt->bindValue(':issueType', $model->issueType);
+        $stmt->bindValue(':capitalToRaise', $model->capitalToRaise);
+        $stmt->bindValue(':expectedCloseDate', $model->expectedCloseDate);
+        $stmt->bindValue(':underwriter', $model->underwriter);
+        $stmt->execute();
+        $this->db->exec('COMMIT');
+    }
+
+    public function addComment($code, $comment)
+    {
+        $this->db->exec('BEGIN');
+        $sql = 'UPDATE companyDetails SET comment=:comment WHERE proposedCode=:code';
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindValue(':comment', trim($comment));
+        $stmt->bindValue(':code', trim($code));
+        $result = $stmt->execute();
+        var_dump($result->numColumns());
+        $this->db->exec('COMMIT');
     }
 }

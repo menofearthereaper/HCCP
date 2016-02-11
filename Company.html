@@ -60,7 +60,7 @@ is about as simple as you can get I am just going to roll with out of the box JS
                         _tr = document.createElement('tr'),
                         _td = document.createElement('td'),
                         columns = ['company', 'proposedCode', 'contact', 'listingDate', 'expectedCloseDate', 'industryGroup',
-                            'activities', 'issuePrice', 'issueType', 'underwriter', 'comments'];
+                            'activities', 'issuePrice', 'issueType', 'underwriter', 'comment'];
                 console.log(companies[1]);
                 for (var i = 0; i < companies.length; i++) {
                     var tr = _tr.cloneNode(false);
@@ -73,6 +73,7 @@ is about as simple as you can get I am just going to roll with out of the box JS
                             var input = document.createElement('textarea');
                             input.type = 'text';
                             input.id = 'txtArea_' + companies[i][columns[1]];
+                            input.value = companies[i][columns[j]];
                             var button = document.createElement('button');
                             button.type = 'button';
                             button.innerHTML = 'save';
@@ -109,8 +110,8 @@ is about as simple as you can get I am just going to roll with out of the box JS
         xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
         xhttp.onreadystatechange = function () {
             if (xhttp.readyState == 4 && xhttp.status == 200) {
-                var returnVal = JSON.parse(xhttp.responseText);
-                console.log(returnVal);
+
+                console.log("YAY");
             }
         };
         xhttp.send(data.join('&'));
